@@ -1,97 +1,4 @@
 export const emotions = {
-  HAPPY: {
-    label: 'Happy',
-    children: [
-      {
-        label: 'Joyful',
-        children: [
-        {
-          label: 'Liberated',
-        },
-        {
-          label: 'Ecstatic',
-        },
-        ]
-      },
-      {
-        label: 'Interested',
-        children: [
-          {
-            label: 'Inquisitive',
-          },
-          {
-            label: 'Amused'
-          }
-        ]
-      },
-      {
-        label: 'Proud',
-        children: [
-          {
-            label: 'Confident',
-          },
-          {
-            label: 'Important',
-          }
-        ]
-      },
-      {
-        label: 'Accepted',
-        children: [
-          {
-            label: 'Fulfilled',
-          },
-          {
-            label: 'Respected',
-          }
-        ]
-      },
-      {
-        label: 'Powerful',
-        children: [
-          {
-            label: 'Provocative',
-          },
-          {
-            label: 'Courageous',
-          }
-        ]
-      },
-      {
-        label: 'Peaceful',
-        children: [
-          {
-            label: 'Loving',
-          },
-          {
-            label: 'Hopeful',
-          }
-        ]
-      },
-      {
-        label: 'Intimate',
-        children: [
-          {
-            label: 'Sensitive',
-          },
-          {
-            label: 'Playful',
-          }
-        ]
-      },
-      {
-        label: 'Optimistic',
-        children: [
-          {
-            label: 'Open',
-          },
-          {
-            label: 'Inspired',
-          }
-        ]
-      },
-    ]
-  },
   ANGER: {
     label: 'Anger',
     children: [
@@ -185,75 +92,53 @@ export const emotions = {
       },
     ]
   },
-  FEAR: {
-    label: 'Fear',
+  DISGUST: {
+    label: 'Disgust',
     children: [
       {
-        label: 'Humiliated',
+        label: 'Disapproval',
         children: [
           {
-            label: 'Ridiculed',
+            label: 'Judgmental',
           },
           {
-            label: 'Disrespected',
+            label: 'Loathing',
           }
         ]
       },
       {
-        label: 'Rejected',
+        label: 'Disappointed',
         children: [
           {
-            label: 'Alienated',
+            label: 'Repugnant',
           },
           {
-            label: 'Inadequate',
+            label: 'Revolted',
           }
         ]
       },
       {
-        label: 'Submissive',
+        label: 'Awful',
         children: [
           {
-            label: 'Insignificant',
+            label: 'Revulsion',
           },
           {
-            label: 'Worthless',
+            label: 'Detestable',
           }
         ]
       },
       {
-        label: 'Insecure',
+        label: 'Avoidance',
         children: [
           {
-            label: 'Inferior',
+            label: 'Aversion',
           },
           {
-            label: 'Inadequate',
+            label: 'Hesitant',
           }
         ]
-      },
-      {
-        label: 'Anxious',
-        children: [
-          {
-            label: 'Worried',
-          },
-          {
-            label: 'Overwhelmed',
-          }
-        ]
-      },
-      {
-        label: 'Scared',
-        children: [
-          {
-            label: 'Frightened',
-          },
-          {
-            label: 'Terrified',
-          }
-        ]
-      },
+      }
     ]
   },
   SAD: {
@@ -327,53 +212,97 @@ export const emotions = {
       },
     ]
   },
-  DISGUST: {
-    label: 'Disgust',
+  HAPPY: {
+    label: 'Happy',
     children: [
       {
-        label: 'Disapproval',
+        label: 'Joyful',
+        children: [
+        {
+          label: 'Liberated',
+        },
+        {
+          label: 'Ecstatic',
+        },
+        ]
+      },
+      {
+        label: 'Interested',
         children: [
           {
-            label: 'Judgmental',
+            label: 'Inquisitive',
           },
           {
-            label: 'Loathing',
+            label: 'Amused'
           }
         ]
       },
       {
-        label: 'Disappointed',
+        label: 'Proud',
         children: [
           {
-            label: 'Repugnant',
+            label: 'Confident',
           },
           {
-            label: 'Revolted',
+            label: 'Important',
           }
         ]
       },
       {
-        label: 'Awful',
+        label: 'Accepted',
         children: [
           {
-            label: 'Revulsion',
+            label: 'Fulfilled',
           },
           {
-            label: 'Detestable',
+            label: 'Respected',
           }
         ]
       },
       {
-        label: 'Avoidance',
+        label: 'Powerful',
         children: [
           {
-            label: 'Aversion',
+            label: 'Provocative',
           },
           {
-            label: 'Hesitant',
+            label: 'Courageous',
           }
         ]
-      }
+      },
+      {
+        label: 'Peaceful',
+        children: [
+          {
+            label: 'Loving',
+          },
+          {
+            label: 'Hopeful',
+          }
+        ]
+      },
+      {
+        label: 'Intimate',
+        children: [
+          {
+            label: 'Sensitive',
+          },
+          {
+            label: 'Playful',
+          }
+        ]
+      },
+      {
+        label: 'Optimistic',
+        children: [
+          {
+            label: 'Open',
+          },
+          {
+            label: 'Inspired',
+          }
+        ]
+      },
     ]
   },
   SURPRISE: {
@@ -420,6 +349,77 @@ export const emotions = {
           },
           {
             label: 'Energetic',
+          }
+        ]
+      },
+    ]
+  },
+  FEAR: {
+    label: 'Fear',
+    children: [
+      {
+        label: 'Humiliated',
+        children: [
+          {
+            label: 'Ridiculed',
+          },
+          {
+            label: 'Disrespected',
+          }
+        ]
+      },
+      {
+        label: 'Rejected',
+        children: [
+          {
+            label: 'Alienated',
+          },
+          {
+            label: 'Inadequate',
+          }
+        ]
+      },
+      {
+        label: 'Submissive',
+        children: [
+          {
+            label: 'Insignificant',
+          },
+          {
+            label: 'Worthless',
+          }
+        ]
+      },
+      {
+        label: 'Insecure',
+        children: [
+          {
+            label: 'Inferior',
+          },
+          {
+            label: 'Inadequate',
+          }
+        ]
+      },
+      {
+        label: 'Anxious',
+        children: [
+          {
+            label: 'Worried',
+          },
+          {
+            label: 'Overwhelmed',
+          }
+        ]
+      },
+      {
+        label: 'Scared',
+        children: [
+          {
+            label: 'Frightened',
+          },
+          {
+            label: 'Terrified',
           }
         ]
       },

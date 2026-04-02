@@ -25,20 +25,20 @@ export type WheelColorMode = 'light' | 'dark'
 export const PRIMARY_FAMILY_FILL_LIGHT: Record<string, string> = {
   HAPPY: 'hsl(46 78% 58%)',
   ANGER: 'hsl(10 82% 54%)',
-  FEAR: 'hsl(268 58% 62%)',
+  FEAR: 'hsl(96 52% 44%)',
   SAD: 'hsl(214 62% 56%)',
-  DISGUST: 'hsl(96 52% 44%)',
-  SURPRISE: 'hsl(292 65% 64%)',
+  DISGUST: 'hsl(268 58% 62%)',
+  SURPRISE: 'hsl(172 58% 48%)',
 }
 
 /** Same families tuned for dark UI (slightly richer / balanced on dark gray). */
 export const PRIMARY_FAMILY_FILL_DARK: Record<string, string> = {
   HAPPY: 'hsl(44 72% 48%)',
   ANGER: 'hsl(8 78% 52%)',
-  FEAR: 'hsl(270 62% 62%)',
+  FEAR: 'hsl(94 48% 46%)',
   SAD: 'hsl(212 58% 58%)',
-  DISGUST: 'hsl(94 48% 46%)',
-  SURPRISE: 'hsl(290 68% 62%)',
+  DISGUST: 'hsl(270 62% 62%)',
+  SURPRISE: 'hsl(172 55% 54%)',
 }
 
 const FALLBACK_FAMILY_FILL_LIGHT = 'hsl(215 38% 58%)'
