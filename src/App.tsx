@@ -1,11 +1,13 @@
 import { useCallback, useRef, useState } from "react";
-import { Box, Button, Heading, VStack } from "@chakra-ui/react";
+import { Box, Button, Heading, IconButton, VStack } from "@chakra-ui/react";
+import { LuGithub } from "react-icons/lu";
 import {
   EmotionWheel,
   type EmotionWheelHandle,
 } from "@/components/EmotionWheel";
 import { WordDialog } from "@/components/WordDialog";
 import type { WheelSegment } from "@/lib/emotionTree";
+import { GITHUB_REPO_URL } from "@/lib/site";
 import { ColorModeButton } from "./components/ui/color-mode";
 
 function App() {
@@ -35,6 +37,30 @@ function App() {
           onSelect={setSelected}
         />
       </VStack>
+
+      <IconButton
+        asChild
+        variant="ghost"
+        size="sm"
+        aria-label="View source on GitHub"
+        position="fixed"
+        bottom={4}
+        left={4}
+        css={{
+          _icon: {
+            width: "5",
+            height: "5",
+          },
+        }}
+      >
+        <a
+          href={GITHUB_REPO_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <LuGithub />
+        </a>
+      </IconButton>
 
       <ColorModeButton position="fixed" bottom={4} right={4} />
 
