@@ -174,9 +174,32 @@ export function annulusPath(
 }
 
 /**
- * Mid-radius label anchor, **sideways**: baseline along the **radial** line (+90° from tangential),
- * so words run across the ring band instead of along the arc. Readability flip on the lower half,
- * then +90° from that tangential angle.
+ * Some subtrees sit on the long arc clockwise from the wheel top (HAPPY, ANGER, then the first
+ * FEAR branches). For those wedges, the generic (−90°, 90°] readability step picks the opposite
+ * radial reading sense from the rest of the wheel; add 180° to the label rotation there.
+ */
+export function segmentNeedsLabelRotationFlip180(seg: WheelSegment): boolean {
+  if (seg.primaryKey === 'HAPPY' || seg.primaryKey === 'ANGER') return true
+  if (
+    seg.primaryKey === 'FEAR' &&
+    seg.path.length >= 2 &&
+    (seg.path[1] === 'Humiliated' || seg.path[1] === 'Rejected')
+  ) {
+    return true
+  }
+  return false
+}
+
+/**
+ * Mid-radius label anchor: baseline lies on the **outward radial** through `tMid`
+ * (same frame as `annulusPath`: x = cx + r sin t, y = cy − r cos t).
+ *
+ * SVG `rotate(θ)` sends default baseline +x to (cos θ, sin θ) (θ in degrees, positive = clockwise).
+ * We need that parallel to radial (sin t, −cos t), so θ = atan2(−cos t, sin t) before normalization.
+ *
+ * Then clamp to (−90°, 90°] like map labels so type stays readable (flip 180° along the radial when
+ * needed). This replaces the old `bearing + cos flip + 90` heuristic, which disagreed with SVG’s
+ * actual rotate convention on many wedges.
  */
 export function labelPlacement(
   cx: number,
@@ -190,15 +213,19 @@ export function labelPlacement(
   const rMid = (rInner + rOuter) / 2
   const x = cx + rMid * Math.sin(tMid)
   const y = cy - rMid * Math.cos(tMid)
-  let rotation = (tMid * 180) / Math.PI
-  if (rotation > 90 && rotation < 270) rotation += 180
-  rotation += 90
+
+  let rotation =
+    (Math.atan2(-Math.cos(tMid), Math.sin(tMid)) * 180) / Math.PI
+  rotation = ((rotation + 180) % 360 + 360) % 360 - 180
+  if (rotation > 90) rotation -= 180
+  else if (rotation < -90) rotation += 180
+
   return { x, y, rotation }
 }
 
 /**
  * Local SVG angle in degrees (0° = 3 o'clock, 90° = 6 o'clock, -90° = 12 o'clock)
- * for the center of a segment; used with `rotate(deg)` so the top pointer hits `tMid`.
+ * for the center of a segment; used with `rotate(deg)` so the left pointer (180°) hits `tMid`.
  */
 export function segmentCenterSvgAngleDeg(startT: number, endT: number): number {
   const tMid = (startT + endT) / 2

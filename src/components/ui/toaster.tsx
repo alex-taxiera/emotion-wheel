@@ -1,4 +1,5 @@
 "use client"
+/* eslint-disable react-refresh/only-export-components -- createToaster singleton + Toaster */
 
 import {
   Toaster as ChakraToaster,
