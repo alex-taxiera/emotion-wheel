@@ -174,32 +174,31 @@ export function annulusPath(
 }
 
 /**
- * Some subtrees sit on the long arc clockwise from the wheel top (HAPPY, ANGER, then the first
- * FEAR branches). For those wedges, the generic (−90°, 90°] readability step picks the opposite
- * radial reading sense from the rest of the wheel; add 180° to the label rotation there.
+ * Rotation (degrees, SVG clockwise) so label baseline is parallel to the **outward radial** at
+ * bearing `tMid` (from top, clockwise; same frame as `annulusPath`).
+ *
+ * Math: outward unit vector is **u** = (sin tMid, −cos tMid). Baseline after `rotate(θ)` follows
+ * (cos θ, sin θ) in SVG axes. So θ = atan2(−cos tMid, sin tMid)·180/π, **up to a 180° flip**
+ * (same line, opposite reading direction along the radius).
+ *
+ * Which flip? Roughly “keep Latin upright”: glyph tops should lean toward screen-up (0, −1). For
+ * baseline angle θ (radians), tops trend along (−sin θ, −cos θ); dot with (0, −1) is cos θ, so we
+ * want **cos θ > 0** ⇔ θ ∈ (−90°, 90°) (mod 360). Normalizing atan2 into **(−90°, 90°]** picks
+ * that branch automatically — no per-emotion heuristics when you reorder the tree.
  */
-export function segmentNeedsLabelRotationFlip180(seg: WheelSegment): boolean {
-  if (seg.primaryKey === 'HAPPY' || seg.primaryKey === 'ANGER') return true
-  if (
-    seg.primaryKey === 'FEAR' &&
-    seg.path.length >= 2 &&
-    (seg.path[1] === 'Humiliated' || seg.path[1] === 'Rejected')
-  ) {
-    return true
-  }
-  return false
+export function radialLabelRotationDeg(tMid: number): number {
+  let rotation =
+    (Math.atan2(-Math.cos(tMid), Math.sin(tMid)) * 180) / Math.PI
+  rotation = ((rotation + 180) % 360 + 360) % 360 - 180
+  if (rotation > 90) rotation -= 180
+  else if (rotation < -90) rotation += 180
+  return rotation
 }
 
 /**
  * Mid-radius label anchor: baseline lies on the **outward radial** through `tMid`
  * (same frame as `annulusPath`: x = cx + r sin t, y = cy − r cos t).
- *
- * SVG `rotate(θ)` sends default baseline +x to (cos θ, sin θ) (θ in degrees, positive = clockwise).
- * We need that parallel to radial (sin t, −cos t), so θ = atan2(−cos t, sin t) before normalization.
- *
- * Then clamp to (−90°, 90°] like map labels so type stays readable (flip 180° along the radial when
- * needed). This replaces the old `bearing + cos flip + 90` heuristic, which disagreed with SVG’s
- * actual rotate convention on many wedges.
+ * Rotation from {@link radialLabelRotationDeg}.
  */
 export function labelPlacement(
   cx: number,
@@ -213,14 +212,7 @@ export function labelPlacement(
   const rMid = (rInner + rOuter) / 2
   const x = cx + rMid * Math.sin(tMid)
   const y = cy - rMid * Math.cos(tMid)
-
-  let rotation =
-    (Math.atan2(-Math.cos(tMid), Math.sin(tMid)) * 180) / Math.PI
-  rotation = ((rotation + 180) % 360 + 360) % 360 - 180
-  if (rotation > 90) rotation -= 180
-  else if (rotation < -90) rotation += 180
-
-  return { x, y, rotation }
+  return { x, y, rotation: radialLabelRotationDeg(tMid) }
 }
 
 /**

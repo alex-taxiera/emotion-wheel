@@ -15,7 +15,6 @@ import {
   labelPlacement,
   RING_EDGES,
   segmentCenterSvgAngleDeg,
-  segmentNeedsLabelRotationFlip180,
   type WheelColorMode,
   type WheelSegment,
 } from "@/lib/emotionTree";
@@ -350,7 +349,7 @@ export function EmotionWheel({ selectedId, onSelect, ref }: EmotionWheelProps) {
             const { inner, outer } = ringRadii(seg.depth);
             const d = annulusPath(0, 0, inner, outer, seg.startT, seg.endT);
             const selected = seg.id === selectedId;
-            const { x, y, rotation: rotBase } = labelPlacement(
+            const { x, y, rotation } = labelPlacement(
               0,
               0,
               inner,
@@ -358,8 +357,6 @@ export function EmotionWheel({ selectedId, onSelect, ref }: EmotionWheelProps) {
               seg.startT,
               seg.endT,
             );
-            const rotation =
-              rotBase + (segmentNeedsLabelRotationFlip180(seg) ? 180 : 0);
             const angularWidth = seg.endT - seg.startT;
             const displayLabel = displayLabelForSegment(seg);
             const showLabel = angularWidth > 0.03;
