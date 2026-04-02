@@ -19,14 +19,42 @@ export type WheelSegment = {
   primaryKey: string
 }
 
-/** Base hue per primary key — distinct families on the wheel. */
-const PRIMARY_HUE: Record<string, number> = {
-  HAPPY: 46,
-  ANGER: 12,
-  FEAR: 268,
-  SAD: 210,
-  DISGUST: 92,
-  SURPRISE: 292,
+export type WheelColorMode = 'light' | 'dark'
+
+/** Base fill per root family — light theme (wheel on pale UI). */
+export const PRIMARY_FAMILY_FILL_LIGHT: Record<string, string> = {
+  HAPPY: 'hsl(46 78% 58%)',
+  ANGER: 'hsl(10 82% 54%)',
+  FEAR: 'hsl(268 58% 62%)',
+  SAD: 'hsl(214 62% 56%)',
+  DISGUST: 'hsl(96 52% 44%)',
+  SURPRISE: 'hsl(292 65% 64%)',
+}
+
+/** Same families tuned for dark UI (slightly richer / balanced on dark gray). */
+export const PRIMARY_FAMILY_FILL_DARK: Record<string, string> = {
+  HAPPY: 'hsl(44 72% 48%)',
+  ANGER: 'hsl(8 78% 52%)',
+  FEAR: 'hsl(270 62% 62%)',
+  SAD: 'hsl(212 58% 58%)',
+  DISGUST: 'hsl(94 48% 46%)',
+  SURPRISE: 'hsl(290 68% 62%)',
+}
+
+const FALLBACK_FAMILY_FILL_LIGHT = 'hsl(215 38% 58%)'
+const FALLBACK_FAMILY_FILL_DARK = 'hsl(215 45% 52%)'
+
+function paletteForMode(mode: WheelColorMode): Record<string, string> {
+  return mode === 'dark' ? PRIMARY_FAMILY_FILL_DARK : PRIMARY_FAMILY_FILL_LIGHT
+}
+
+function fallbackForMode(mode: WheelColorMode): string {
+  return mode === 'dark' ? FALLBACK_FAMILY_FILL_DARK : FALLBACK_FAMILY_FILL_LIGHT
+}
+
+function fillForPrimary(primaryKey: string, mode: WheelColorMode): string {
+  const palette = paletteForMode(mode)
+  return palette[primaryKey] ?? fallbackForMode(mode)
 }
 
 /** Count of leaf nodes in `node`'s subtree (this node counts if it has no children). */
@@ -37,20 +65,6 @@ export function countLeaves(node: EmotionNode): number {
   return sum
 }
 
-function segmentColor(
-  primaryKey: string,
-  depth: number,
-  indexInParent: number,
-  numSiblings: number,
-): string {
-  const base = PRIMARY_HUE[primaryKey] ?? 200
-  const spread = numSiblings <= 1 ? 0 : (indexInParent - (numSiblings - 1) / 2) * 7
-  const h = (base + spread + 360) % 360
-  const s = Math.max(36, 74 - depth * 14)
-  const l = Math.min(64, 40 + depth * 9 + indexInParent * 1.5)
-  return `hsl(${h} ${s}% ${l}%)`
-}
-
 function walk(
   node: EmotionNode,
   primaryKey: string,
@@ -58,8 +72,7 @@ function walk(
   t1: number,
   depth: number,
   pathPrefix: string[],
-  siblingIndex: number,
-  siblingCount: number,
+  colorMode: WheelColorMode,
   out: WheelSegment[],
 ): void {
   const path = [...pathPrefix, node.label]
@@ -70,7 +83,7 @@ function walk(
     depth,
     startT: t0,
     endT: t1,
-    color: segmentColor(primaryKey, depth, siblingIndex, siblingCount),
+    color: fillForPrimary(primaryKey, colorMode),
     primaryKey,
   })
 
@@ -87,15 +100,20 @@ function walk(
     const child = node.children[i]!
     const w = childWeights[i]! / weightSum
     const ct1 = acc + span * w
-    walk(child, primaryKey, acc, ct1, depth + 1, path, i, n, out)
+    walk(child, primaryKey, acc, ct1, depth + 1, path, colorMode, out)
     acc = ct1
   }
 }
 
-/** Ring boundaries: inner hole, then outer edge of depth 0, 1, 2 (normalized 0–1, multiply by radius). */
-export const RING_EDGES = [0.14, 0.38, 0.68, 1] as const
+/**
+ * Ring boundaries: inner hole, then outer edge of depth 0, 1, 2 (normalized 0–1 × radius).
+ * Middle and outer bands are wider than the primary ring so radial (sideways) labels fit.
+ */
+export const RING_EDGES = [0.1, 0.33, 0.66, 1] as const
 
-export function buildWheelSegments(): WheelSegment[] {
+export function buildWheelSegments(
+  colorMode: WheelColorMode = 'light',
+): WheelSegment[] {
   const segments: WheelSegment[] = []
   const roots = Object.entries(emotions) as [string, EmotionNode][]
   const count = roots.length
@@ -108,7 +126,7 @@ export function buildWheelSegments(): WheelSegment[] {
   for (let i = 0; i < count; i++) {
     const [key, node] = roots[i]!
     const t1 = acc + (full * rootWeights[i]!) / totalLeaves
-    walk(node, key, acc, t1, 0, [], i, count, segments)
+    walk(node, key, acc, t1, 0, [], colorMode, segments)
     acc = t1
   }
   return segments
@@ -156,9 +174,9 @@ export function annulusPath(
 }
 
 /**
- * Mid-radius label anchor with rotation **tangential** to the ring (minimal radial footprint).
- * Tangent direction matches increasing `t` (clockwise from top); flip 180° on the lower half
- * so type stays readable left-to-right.
+ * Mid-radius label anchor, **sideways**: baseline along the **radial** line (+90° from tangential),
+ * so words run across the ring band instead of along the arc. Readability flip on the lower half,
+ * then +90° from that tangential angle.
  */
 export function labelPlacement(
   cx: number,
@@ -174,6 +192,7 @@ export function labelPlacement(
   const y = cy - rMid * Math.cos(tMid)
   let rotation = (tMid * 180) / Math.PI
   if (rotation > 90 && rotation < 270) rotation += 180
+  rotation += 90
   return { x, y, rotation }
 }
 
