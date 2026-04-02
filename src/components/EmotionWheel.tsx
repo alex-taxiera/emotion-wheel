@@ -24,7 +24,18 @@ import {
   WHEEL_VIEWBOX_SIDE,
 } from "@/lib/wheelSvgConstants";
 
-const TRANSITION_MS = 2800;
+const TRANSITION_MS = 4000;
+
+/**
+ * One continuous ease-out: starts briskly, slows smoothly to a stop (no second phase / constant-speed tail).
+ * Quartic is a bit gentler than cubic; avoid very high powers—they flatten the tail so it looks “stuck”.
+ */
+const SPIN_EASE_OUT_POWER = 4;
+
+function spinEasedProgress(linearT: number): number {
+  const t = Math.min(1, Math.max(0, linearT));
+  return 1 - (1 - t) ** SPIN_EASE_OUT_POWER;
+}
 
 /** Matches SVG `<text>`; keep in sync if you change wheel fonts. */
 const WHEEL_LABEL_FONT_FAMILY =
@@ -118,9 +129,10 @@ export function EmotionWheel({ selectedId, onSelect, ref }: EmotionWheelProps) {
 
     function tick(now: number) {
       if (cancelled) return;
-      const t = Math.min(1, (now - startTime) / TRANSITION_MS);
-      const eased = 1 - (1 - t) ** 3;
-      const v = from + (to - from) * eased;
+      const elapsed = now - startTime;
+      const t = Math.min(1, elapsed / TRANSITION_MS);
+      const frac = spinEasedProgress(t);
+      const v = from + (to - from) * frac;
       displayRotationRef.current = v;
       setDisplayRotation(v);
       if (t < 1) rafId = requestAnimationFrame(tick);

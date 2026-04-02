@@ -1,17 +1,40 @@
-import { Dialog, Flex, Spinner, Stack, Text } from "@chakra-ui/react";
+import {
+  Button,
+  Dialog,
+  Flex,
+  List,
+  Spinner,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
 import { LuX } from "react-icons/lu";
 import { useQuery } from "@tanstack/react-query";
 
-import { fetchDictionaryEntry } from "@/lib/dictionary";
+import {
+  fetchDictionaryEntry,
+  type DictionarySense,
+} from "@/lib/dictionary";
 
 import type { WheelSegment } from "@/lib/emotionTree";
 
+function groupSensesByPartOfSpeech(senses: DictionarySense[]) {
+  const groups: { pos: string; defs: string[] }[] = [];
+  for (const s of senses) {
+    const pos = s.partOfSpeech || "other";
+    const last = groups[groups.length - 1];
+    if (last && last.pos === pos) last.defs.push(s.definition);
+    else groups.push({ pos, defs: [s.definition] });
+  }
+  return groups;
+}
+
 export type WordDialogProps = {
   onOpenChange: (details: { open: boolean }) => void;
+  onSpin: () => void;
   selected: WheelSegment | null;
 };
 
-export function WordDialog({ onOpenChange, selected }: WordDialogProps) {
+export function WordDialog({ onOpenChange, onSpin, selected }: WordDialogProps) {
   const lookupWord = selected?.label ?? "";
 
   const {
@@ -56,14 +79,14 @@ export function WordDialog({ onOpenChange, selected }: WordDialogProps) {
             {selected && isPending && (
               <Flex align="center" gap={3}>
                 <Spinner size="sm" />
-                <Text color="fg.muted">Loading definition…</Text>
+                <Text color="fg.muted">Loading definitions…</Text>
               </Flex>
             )}
             {selected && isError && (
               <Text color="red.fg">
                 {error instanceof Error
                   ? error.message
-                  : "Could not load definition."}
+                  : "Could not load definitions."}
               </Text>
             )}
             {selected && !isPending && !isError && dictionary === null && (
@@ -71,21 +94,48 @@ export function WordDialog({ onOpenChange, selected }: WordDialogProps) {
                 No dictionary entry found for &ldquo;{lookupWord}&rdquo;.
               </Text>
             )}
-            {selected && dictionary && (
-              <Stack gap={2}>
-                {dictionary.partOfSpeech && (
-                  <Text
-                    fontSize="xs"
-                    color="fg.muted"
-                    textTransform="capitalize"
-                  >
-                    {dictionary.partOfSpeech}
-                  </Text>
+            {selected && dictionary && dictionary.senses.length > 0 && (
+              <Stack gap={4}>
+                {groupSensesByPartOfSpeech(dictionary.senses).map(
+                  ({ pos, defs }, gi) => (
+                    <Stack key={`${pos}-${gi}`} gap={2} align="stretch">
+                      <Text
+                        fontSize="xs"
+                        color="fg.muted"
+                        textTransform="capitalize"
+                        fontWeight="semibold"
+                      >
+                        {pos}
+                      </Text>
+                      <List.Root
+                        gap={2}
+                        as="ol"
+                        pl={4}
+                        style={{ listStyleType: "decimal" }}
+                      >
+                        {defs.map((def, i) => (
+                          <List.Item key={i} value={i}>
+                            <Text as="span">{def}</Text>
+                          </List.Item>
+                        ))}
+                      </List.Root>
+                    </Stack>
+                  ),
                 )}
-                <Text>{dictionary.definition}</Text>
               </Stack>
             )}
           </Dialog.Body>
+          <Dialog.Footer>
+            <Button
+              colorPalette="blue"
+              size="sm"
+              variant="outline"
+              w="full"
+              onClick={onSpin}
+            >
+              Spin the wheel
+            </Button>
+          </Dialog.Footer>
         </Dialog.Content>
       </Dialog.Positioner>
     </Dialog.Root>

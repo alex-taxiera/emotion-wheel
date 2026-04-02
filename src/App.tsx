@@ -1,5 +1,5 @@
-import { useRef, useState } from "react";
-import { Box, Button, Heading, Text, VStack } from "@chakra-ui/react";
+import { useCallback, useRef, useState } from "react";
+import { Box, Button, Heading, VStack } from "@chakra-ui/react";
 import {
   EmotionWheel,
   type EmotionWheelHandle,
@@ -12,6 +12,11 @@ function App() {
   const wheelRef = useRef<EmotionWheelHandle>(null);
   const [selected, setSelected] = useState<WheelSegment | null>(null);
 
+  const handleSpin = useCallback(() => {
+    setSelected(null);
+    wheelRef.current?.spin();
+  }, []);
+
   return (
     <Box minH="100dvh" pt={{ base: 3, md: 6 }} pb={2} px={4} color="fg">
       <VStack gap={4} maxW="800px" mx="auto">
@@ -19,17 +24,7 @@ function App() {
           <Heading size="xl" fontWeight="semibold">
             Emotion wheel
           </Heading>
-          <Text color="fg.muted">
-            Click any ring or spin for a random emotion.
-          </Text>
-          <Button
-            colorPalette="blue"
-            size="sm"
-            onClick={() => {
-              setSelected(null);
-              wheelRef.current?.spin();
-            }}
-          >
+          <Button colorPalette="blue" size="xs" onClick={handleSpin}>
             Spin the Wheel
           </Button>
         </VStack>
@@ -47,6 +42,7 @@ function App() {
         onOpenChange={(e) => {
           if (!e.open) setSelected(null);
         }}
+        onSpin={handleSpin}
         selected={selected}
       />
     </Box>

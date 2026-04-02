@@ -1,10 +1,15 @@
 const DICTIONARY_BASE =
   'https://api.dictionaryapi.dev/api/v2/entries/en'
 
-export type DictionaryEntry = {
-  word: string
+/** One gloss line from the API (may share a part of speech with neighbors). */
+export type DictionarySense = {
   partOfSpeech: string
   definition: string
+}
+
+export type DictionaryEntry = {
+  word: string
+  senses: DictionarySense[]
 }
 
 type ApiMeaning = {
@@ -17,25 +22,24 @@ type ApiEntry = {
   meanings?: ApiMeaning[]
 }
 
-function firstDefinition(entries: ApiEntry[]): DictionaryEntry | null {
+function collectAllSenses(entries: ApiEntry[]): DictionaryEntry | null {
+  const senses: DictionarySense[] = []
+  let word = ''
   for (const entry of entries) {
-    const meanings = entry.meanings
-    if (!meanings?.length) continue
-    for (const m of meanings) {
-      const def = m.definitions?.[0]?.definition
-      if (def) {
-        return {
-          word: entry.word ?? '',
-          partOfSpeech: m.partOfSpeech ?? '',
-          definition: def,
-        }
+    if (entry.word) word = entry.word
+    for (const m of entry.meanings ?? []) {
+      const pos = m.partOfSpeech ?? ''
+      for (const d of m.definitions ?? []) {
+        const def = d.definition?.trim()
+        if (def) senses.push({ partOfSpeech: pos, definition: def })
       }
     }
   }
-  return null
+  if (senses.length === 0) return null
+  return { word, senses }
 }
 
-/** Resolves to null when the word is unknown (404). */
+/** Resolves to null when the word is unknown (404) or has no definitions. */
 export async function fetchDictionaryEntry(
   word: string,
   signal: AbortSignal,
@@ -57,5 +61,5 @@ export async function fetchDictionaryEntry(
   const data: unknown = await res.json()
   if (!Array.isArray(data) || data.length === 0) return null
 
-  return firstDefinition(data as ApiEntry[])
+  return collectAllSenses(data as ApiEntry[])
 }
