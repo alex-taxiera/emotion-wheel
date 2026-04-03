@@ -1,10 +1,10 @@
 import {
-  Button,
   List,
   Skeleton,
   SkeletonText,
   Stack,
   Text,
+  type DialogOpenChangeDetails,
 } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 
@@ -12,7 +12,6 @@ import {
   DialogBody,
   DialogCloseTrigger,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogRoot,
   DialogTitle,
@@ -37,12 +36,12 @@ function groupSensesByPartOfSpeech(senses: DictionarySense[]) {
 }
 
 export type WordDialogProps = {
-  onOpenChange: (details: { open: boolean }) => void;
-  onSpin: () => void;
+  open: boolean;
+  onOpenChange: (details: DialogOpenChangeDetails) => void;
   selected: WheelSegment | null;
 };
 
-export function WordDialog({ onOpenChange, onSpin, selected }: WordDialogProps) {
+export function WordDialog({ open, onOpenChange, selected }: WordDialogProps) {
   const lookupWord = selected?.label ?? "";
 
   const {
@@ -57,7 +56,7 @@ export function WordDialog({ onOpenChange, onSpin, selected }: WordDialogProps) 
   });
   return (
     <DialogRoot
-      open={Boolean(selected)}
+      open={open}
       onOpenChange={onOpenChange}
       lazyMount
       unmountOnExit
@@ -131,17 +130,6 @@ export function WordDialog({ onOpenChange, onSpin, selected }: WordDialogProps) 
             </Stack>
           )}
         </DialogBody>
-        <DialogFooter>
-          <Button
-            colorPalette="blue"
-            size="sm"
-            variant="outline"
-            w="full"
-            onClick={onSpin}
-          >
-            Spin the wheel
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </DialogRoot>
   );

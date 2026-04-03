@@ -334,6 +334,24 @@ export function EmotionWheel({ selectedId, onSelect, ref }: EmotionWheelProps) {
           })}
         </defs>
 
+        {/*
+          Shadow on a static annulus so drop offset stays world-fixed while the wheel spins.
+          Same inner/outer radii as segments; fully covered by the rotating layer (center hole stays clear).
+        */}
+        <path
+          d={annulusPath(
+            0,
+            0,
+            RING_EDGES[0]! * WHEEL_RADIUS,
+            RING_EDGES[RING_EDGES.length - 1]! * WHEEL_RADIUS,
+            0,
+            2 * Math.PI,
+          )}
+          fill="#000"
+          filter={`url(#${shadowId})`}
+          style={{ pointerEvents: "none" }}
+        />
+
         {/* Pointer at left (fixed); spin rotation aligns segment center here */}
         <polygon
           points={`${-(WHEEL_RADIUS + 6)},0 ${-WHEEL_RADIUS + 10},-10 ${-WHEEL_RADIUS + 10},10`}
@@ -341,10 +359,7 @@ export function EmotionWheel({ selectedId, onSelect, ref }: EmotionWheelProps) {
           style={{ pointerEvents: "none" }}
         />
 
-        <g
-          transform={`rotate(${displayRotation} 0 0)`}
-          filter={`url(#${shadowId})`}
-        >
+        <g transform={`rotate(${displayRotation} 0 0)`}>
           {segments.map((seg) => {
             const { inner, outer } = ringRadii(seg.depth);
             const d = annulusPath(0, 0, inner, outer, seg.startT, seg.endT);
