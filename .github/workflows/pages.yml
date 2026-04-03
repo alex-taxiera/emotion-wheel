@@ -24,12 +24,16 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
 
+      # Exposes base_url (github.io path or custom domain) for Vite SEO injection.
+      - uses: actions/configure-pages@v6
+        id: pages
+
       - name: Install and build
+        env:
+          VITE_SITE_URL: ${{ steps.pages.outputs.base_url }}
         run: |
           npm ci
           npm run build
-
-      - uses: actions/configure-pages@v6
 
       - uses: actions/upload-pages-artifact@v4
         with:
