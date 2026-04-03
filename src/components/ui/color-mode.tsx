@@ -2,7 +2,7 @@
 /* eslint-disable react-refresh/only-export-components -- hooks live with ColorModeProvider */
 
 import type { IconButtonProps, SpanProps } from "@chakra-ui/react"
-import { ClientOnly, IconButton, Skeleton, Span } from "@chakra-ui/react"
+import { IconButton, Span } from "@chakra-ui/react"
 import { ThemeProvider, useTheme } from "next-themes"
 import type { ThemeProviderProps } from "next-themes"
 import * as React from "react"
@@ -62,24 +62,22 @@ export function ColorModeButton({
 }: ColorModeButtonProps & { ref?: React.Ref<HTMLButtonElement | null> }) {
   const { toggleColorMode } = useColorMode()
   return (
-    <ClientOnly fallback={<Skeleton boxSize="9" />}>
-      <IconButton
-        onClick={toggleColorMode}
-        variant="ghost"
-        aria-label="Toggle color mode"
-        size="sm"
-        ref={ref}
-        {...props}
-        css={{
-          _icon: {
-            width: "5",
-            height: "5",
-          },
-        }}
-      >
-        <ColorModeIcon />
-      </IconButton>
-    </ClientOnly>
+    <IconButton
+      onClick={toggleColorMode}
+      variant="ghost"
+      aria-label="Toggle color mode"
+      size="sm"
+      ref={ref}
+      {...props}
+      css={{
+        _icon: {
+          width: "5",
+          height: "5",
+        },
+      }}
+    >
+      <ColorModeIcon />
+    </IconButton>
   )
 }
 
