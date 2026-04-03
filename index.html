@@ -2,6 +2,47 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <!--
+      Theme before paint: next-themes only runs after React mounts, so without this the page can
+      flash light. Logic must match ColorModeProvider (storageKey "theme", default "system", class on <html>).
+    -->
+    <script>
+      (function () {
+        var storageKey = "theme";
+        var defaultTheme = "system";
+        var themes = ["light", "dark"];
+        var root = document.documentElement;
+        function systemPref() {
+          return window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light";
+        }
+        try {
+          var stored = localStorage.getItem(storageKey) || defaultTheme;
+          var resolved = stored === "system" ? systemPref() : stored;
+          if (themes.indexOf(resolved) < 0) resolved = systemPref();
+          root.classList.remove("light", "dark");
+          root.classList.add(resolved);
+          root.style.colorScheme = resolved;
+        } catch (e) {
+          var fb = systemPref();
+          root.classList.remove("light", "dark");
+          root.classList.add(fb);
+          root.style.colorScheme = fb;
+        }
+      })();
+    </script>
+    <!-- Chakra semantic bg: white / black (tokens) — bridges gap until JS bundle applies theme. -->
+    <style>
+      html.light,
+      html.light body {
+        background-color: #ffffff;
+      }
+      html.dark,
+      html.dark body {
+        background-color: #09090b;
+      }
+    </style>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
